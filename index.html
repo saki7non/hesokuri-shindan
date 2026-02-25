@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>へそくり診断ツール｜家計まるごと節約チェック</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --warm-pink: #F8C8B0;
+    --coral: #E8835A;
+    --deep-coral: #C45E38;
+    --mint: #B8E8D8;
+    --deep-mint: #4AA88A;
+    --gold: #D4A043;
+    --deep-gold: #9A6E1E;
+    --text-dark: #2A1F1A;
+    --text-mid: #5A4035;
+    --text-light: #9A8070;
+    --shadow: rgba(196, 94, 56, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(circle at 10% 20%, rgba(248,200,176,0.4) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(184,232,216,0.35) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(212,160,67,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--coral);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 12px rgba(232,131,90,0.4);
+  }
+
+  .header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(26px, 6vw, 38px);
+    font-weight: 900;
+    color: var(--text-dark);
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .header h1 span {
+    color: var(--coral);
+    position: relative;
+  }
+
+  .header h1 span::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 0; right: 0;
+    height: 6px;
+    background: var(--warm-pink);
+    z-index: -1;
+    border-radius: 3px;
+  }
+
+  .header-sub {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+
+  /* PIGGY COIN COUNTER */
+  .sticky-total {
+    position: sticky;
+    top: 12px;
+    z-index: 100;
+    margin-bottom: 28px;
+    animation: fadeDown 0.8s ease 0.2s both;
+  }
+
+  .total-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 2px solid rgba(232,131,90,0.2);
+  }
+
+  .total-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .piggy-icon {
+    font-size: 44px;
+    filter: drop-shadow(0 4px 8px rgba(232,131,90,0.3));
+    transition: transform 0.3s ease;
+  }
+
+  .piggy-icon.bounce {
+    animation: piggyBounce 0.5s ease;
+  }
+
+  .total-label {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+
+  .total-amount {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 900;
+    color: var(--coral);
+    line-height: 1;
+    transition: all 0.3s ease;
+  }
+
+  .total-amount .yen {
+    font-size: 0.55em;
+    vertical-align: top;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .total-period {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  .period-toggle {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
+
+  .period-btn {
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--warm-pink);
+    background: white;
+    font-size: 11px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .period-btn.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: white;
+    font-weight: 700;
+  }
+
+  /* CATEGORY SECTIONS */
+  .category {
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .category:nth-child(1) { animation-delay: 0.3s; }
+  .category:nth-child(2) { animation-delay: 0.4s; }
+  .category:nth-child(3) { animation-delay: 0.5s; }
+  .category:nth-child(4) { animation-delay: 0.6s; }
+  .category:nth-child(5) { animation-delay: 0.7s; }
+  .category:nth-child(6) { animation-delay: 0.8s; }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .category-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .category-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .category-subtotal {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--deep-coral);
+    background: rgba(232,131,90,0.12);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  .items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* CHECK ITEM */
+  .check-item {
+    background: white;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    user-select: none;
+  }
+
+  .check-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-color: var(--warm-pink);
+  }
+
+  .check-item.checked {
+    background: linear-gradient(135deg, #FFF5F0, #FFFAF5);
+    border-color: var(--coral);
+    box-shadow: 0 4px 16px rgba(232,131,90,0.2);
+  }
+
+  .check-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 2px solid #DDD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+    background: white;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--coral);
+    border-color: var(--coral);
+  }
+
+  .check-mark {
+    display: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 900;
+  }
+
+  .check-item.checked .check-mark {
+    display: block;
+    animation: checkPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  .item-emoji {
+    font-size: 24px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .check-item.checked .item-emoji {
+    transform: scale(1.15);
+  }
+
+  .item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  .item-tip {
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.4;
+  }
+
+  .item-saving {
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .saving-amount {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-mid);
+    transition: color 0.25s;
+    white-space: nowrap;
+  }
+
+  .check-item.checked .saving-amount {
+    color: var(--coral);
+  }
+
+  .saving-unit {
+    font-size: 10px;
+    color: var(--text-light);
+    display: block;
+    text-align: right;
+  }
+
+  /* RESULT SECTION */
+  .result-section {
+    margin-top: 32px;
+    animation: fadeUp 0.6s ease 0.9s both;
+  }
+
+  .result-card {
+    background: linear-gradient(135deg, var(--coral), var(--deep-coral));
+    border-radius: 24px;
+    padding: 32px 28px;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(196,94,56,0.4);
+  }
+
+  .result-card::before {
+    content: '🐷';
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    font-size: 80px;
+    opacity: 0.15;
+    transform: rotate(15deg);
+  }
+
+  .result-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .result-year {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(36px, 9vw, 56px);
+    font-weight: 900;
+    margin-bottom: 6px;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .result-year .yen2 {
+    font-size: 0.5em;
+    vertical-align: top;
+    margin-top: 6px;
+    display: inline-block;
+  }
+
+  .result-year-label {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-bottom: 20px;
+  }
+
+  .result-message {
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: white;
+    color: var(--coral);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 32px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    transition: all 0.25s ease;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+  }
+
+  .cta-sub {
+    font-size: 11px;
+    opacity: 0.75;
+    margin-top: 10px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    animation: fadeUp 0.6s ease 0.25s both;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar-outer {
+    background: #F0EAE4;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral), var(--gold));
+    border-radius: 10px;
+    transition: width 0.5s cubic-bezier(0.34,1.2,0.64,1);
+    min-width: 4px;
+  }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    top: -20px;
+    animation: confettiFall 2s ease-in forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes piggyBounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3) rotate(-10deg); }
+    70% { transform: scale(0.95) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  @keyframes checkPop {
+    from { transform: scale(0) rotate(-20deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes numberBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .number-bump {
+    animation: numberBump 0.35s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">✨ 無料診断ツール</div>
+    <h1>あなたの<span>へそくり力</span>を診断しよう！</h1>
+    <p class="header-sub">チェックするだけ！今すぐできる節約を確認して<br>家族に内緒の「自分だけのお金」をつくろう🐷</p>
+  </div>
+
+  <!-- STICKY TOTAL -->
+  <div class="sticky-total">
+    <div class="total-card">
+      <div class="total-left">
+        <div class="piggy-icon" id="piggyIcon">🐷</div>
+        <div>
+          <div class="total-label">月間へそくり予想額</div>
+          <div class="total-amount" id="totalAmount"><span class="yen">￥</span><span id="amountNum">0</span></div>
+        </div>
+      </div>
+      <div class="total-period">
+        <div style="font-size:11px;color:var(--text-light);">表示切替</div>
+        <div class="period-toggle">
+          <button class="period-btn active" onclick="setPeriod('month',this)">月</button>
+          <button class="period-btn" onclick="setPeriod('year',this)">年</button>
+          <button class="period-btn" onclick="setPeriod('3year',this)">3年</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>チェック済み項目</span>
+      <span><span id="checkedCount">0</span> / <span id="totalCount">0</span> 項目</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div id="categories"></div>
+
+  <!-- RESULT -->
+  <div class="result-section">
+    <div class="result-card">
+      <div class="result-title">🎉 年間へそくり達成予想額</div>
+      <div class="result-year"><span class="yen2">￥</span><span id="yearTotal">0</span></div>
+      <div class="result-year-label">チェックした節約を1年続けると…</div>
+      <div class="result-message" id="resultMessage">
+        まだチェックがありません。<br>上の項目をチェックしてみてください！
+      </div>
+      <a href="#" class="cta-btn">💌 節約の秘訣をもっと知りたい！</a>
+      <div class="cta-sub">詳しい節約テクニック＆へそくり管理術のコンテンツへ</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = [
+  {
+    id: 'food',
+    title: '食費・飲み物',
+    icon: '☕',
+    color: '#FDEEE5',
+    iconBg: '#F8C8B0',
+    items: [
+      { id: 'coffee', emoji: '☕', name: 'コーヒーはマイマグに入れて持参', tip: 'コンビニ・スタバを我慢してひとつ節約', saving: 150, period: 'day', unit: '円/日' },
+      { id: 'lunch', emoji: '🍱', name: 'お弁当を手作りで持参', tip: 'コンビニ弁当より自家製の方が安くて美味しい', saving: 600, period: 'day', unit: '円/日' },
+      { id: 'snack', emoji: '🍫', name: 'おやつはまとめ買いに変更', tip: '個包装より袋入りを購入して日々少しずつ', saving: 200, period: 'day', unit: '円/日' },
+      { id: 'drink', emoji: '🧴', name: '飲み物はまとめ買い・水筒持参', tip: 'ペットボトル購入をやめる', saving: 100, period: 'day', unit: '円/日' },
+      { id: 'dinner', emoji: '🥘', name: '外食を月2回減らしてお家ごはんに', tip: '家族での外食1回削減', saving: 3000, period: 'month', unit: '円/月' },
+    ]
+  },
+  {
+    id: 'point',
+    title: 'ポイント・キャッシュバック',
+    icon: '💳',
+    color: '#E8F8F0',
+    iconBg: '#B8E8D8',
+    items: [
+      { id: 'point1', emoji: '📱', name: 'ポイ活アプリを活用', tip: '楽天・PayPay・dポイントなどを意識的に使う', saving: 5000, period: 'month', unit: '円/月' },
+      { id: 'point2', emoji: '💳', name: 'クレカをポイント高還元カードに統一', tip: '1〜2%還元カードで月3万使えば300〜600円', saving: 400, period: 'month', unit: '円/月' },
+      { id: 'point3', emoji: '🛒', name: 'スーパーのポイントデーをフル活用', tip: '5倍・10倍デーを狙い買い', saving: 800, period: 'month', unit: '円/月' },
+    ]
+  },
+  {
+    id: 'daily',
+    title: '日用品・ショッピング',
+    icon: '🧴',
+    color: '#FFF5E8',
+    iconBg: '#FFD9A0',
+    items: [
+      { id: 'daily1', emoji: '🧻', name: '日用品はまとめ買い＆ネット購入', tip: 'Amazon定期便・ドラッグストアセールを活用', saving: 2000, period: 'month', unit: '円/月' },
+      { id: 'daily2', emoji: '👗', name: '衝動買いを「1週間待つルール」に変更', tip: '本当に必要か冷静に判断できる', saving: 3000, period: 'month', unit: '円/月' },
+      { id: 'daily3', emoji: '📦', name: '不用品をフリマアプリで売却', tip: 'メルカリ・ラクマで月1回出品', saving: 2500, period: 'month', unit: '円/月' },
+    ]
+  },
+  {
+    id: 'fixed',
+    title: '固定費の見直し',
+    icon: '📋',
+    color: '#EFF0FE',
+    iconBg: '#C8CCF8',
+    items: [
+      { id: 'fixed1', emoji: '📱', name: 'スマホを格安SIMに乗り換え', tip: '大手キャリアから乗り換えで節約', saving: 3000, period: 'month', unit: '円/月' },
+      { id: 'fixed2', emoji: '📺', name: '使っていないサブスク1つ解約', tip: 'Netflix/Amaz/huluなど見直し', saving: 1500, period: 'month', unit: '円/月' },
+      { id: 'fixed3', emoji: '💡', name: '電気・ガス会社を乗り換え', tip: '比較サイトで見直すだけ', saving: 1500, period: 'month', unit: '円/月' },
+      { id: 'fixed4', emoji: '🏪', name: '生命保険を見直し・ネット保険に変更', tip: '無駄な特約を外すだけで大きな節約に', saving: 5000, period: 'month', unit: '円/月' },
+    ]
+  },
+  {
+    id: 'beauty',
+    title: '美容・健康',
+    icon: '💄',
+    color: '#FEECF5',
+    iconBg: '#F8C0DC',
+    items: [
+      { id: 'beauty1', emoji: '💇', name: 'ヘアカットの頻度を1回減らす', tip: '3ヶ月→4ヶ月サイクルに変更', saving: 2000, period: 'month', unit: '円/月' },
+      { id: 'beauty2', emoji: '💅', name: 'セルフネイルに切り替え', tip: 'セルフキットで十分キレイにできる', saving: 3000, period: 'month', unit: '円/月' },
+      { id: 'beauty3', emoji: '🏃', name: 'ジムをアプリ＋無料施設に変更', tip: '公園ランニング・YouTubeフィットネスで代替', saving: 8000, period: 'month', unit: '円/月' },
+    ]
+  },
+  {
+    id: 'banking',
+    title: '賢い貯蓄の仕組み',
+    icon: '🏦',
+    color: '#E8F4FD',
+    iconBg: '#A8D8F0',
+    items: [
+      { id: 'bank1', emoji: '🏦', name: '先取り貯蓄の口座を作る', tip: '給料日に自動で別口座に移す仕組みを作る', saving: 0, period: 'month', unit: '効果大' },
+      { id: 'bank2', emoji: '📊', name: '家計簿アプリで支出を可視化', tip: 'マネーフォワード等で無意識出費を発見', saving: 3000, period: 'month', unit: '円/月' },
+      { id: 'bank3', emoji: '💰', name: 'つみたてNISAで資産形成', tip: '節税しながら将来のお金も増やせる', saving: 0, period: 'month', unit: '節税効果' },
+    ]
+  }
+];
+
+// Compute per-month savings for each item
+function getMonthly(item) {
+  if (item.period === 'day') return item.saving * 20; // 月20日稼働想定
+  if (item.period === 'month') return item.saving;
+  if (item.period === 'year') return Math.round(item.saving / 12);
+  return 0;
+}
+
+const TOTAL_ITEMS = DATA.reduce((s, c) => s + c.items.length, 0);
+const MAX_MONTHLY = DATA.reduce((s, c) => s + c.items.reduce((ss, i) => ss + getMonthly(i), 0), 0);
+
+let checked = new Set();
+let currentPeriod = 'month';
+
+function renderCategories() {
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  DATA.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'category';
+    div.innerHTML = `
+      <div class="category-header">
+        <div class="category-icon" style="background:${cat.iconBg};">${cat.icon}</div>
+        <div class="category-title">${cat.title}</div>
+        <div class="category-subtotal" id="sub-${cat.id}">＋¥0</div>
+      </div>
+      <div class="items-list">
+        ${cat.items.map(item => `
+          <div class="check-item" id="item-${item.id}" onclick="toggle('${item.id}')">
+            <div class="check-box">
+              <span class="check-mark">✓</span>
+            </div>
+            <div class="item-emoji">${item.emoji}</div>
+            <div class="item-info">
+              <div class="item-name">${item.name}</div>
+              <div class="item-tip">${item.tip}</div>
+            </div>
+            <div class="item-saving">
+              <div class="saving-amount">${item.saving > 0 ? '¥'+item.saving.toLocaleString() : '💡'}</div>
+              <div class="saving-unit">${item.unit}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  document.getElementById('totalCount').textContent = TOTAL_ITEMS;
+}
+
+function toggle(itemId) {
+  if (checked.has(itemId)) {
+    checked.delete(itemId);
+    document.getElementById('item-' + itemId).classList.remove('checked');
+  } else {
+    checked.add(itemId);
+    document.getElementById('item-' + itemId).classList.add('checked');
+    // Pop
+    const el = document.getElementById('item-' + itemId);
+    el.style.animation = 'none';
+    setTimeout(() => el.style.animation = '', 10);
+  }
+  update();
+}
+
+function setPeriod(period, btn) {
+  currentPeriod = period;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  update(false);
+}
+
+function update(animate = true) {
+  // Compute totals
+  const monthlyTotal = Array.from(checked).reduce((s, id) => {
+    for (const cat of DATA) {
+      const item = cat.items.find(i => i.id === id);
+      if (item) return s + getMonthly(item);
+    }
+    return s;
+  }, 0);
+
+  let displayAmount = monthlyTotal;
+  let label = '月間';
+  if (currentPeriod === 'year') { displayAmount = monthlyTotal * 12; label = '年間'; }
+  if (currentPeriod === '3year') { displayAmount = monthlyTotal * 36; label = '3年間'; }
+
+  const amountEl = document.getElementById('amountNum');
+  const oldVal = parseInt(amountEl.textContent.replace(/,/g, '') || 0);
+  if (oldVal !== displayAmount) {
+    animateNumber(amountEl, oldVal, displayAmount, 400);
+    document.getElementById('amountNum').parentElement.classList.remove('number-bump');
+    void document.getElementById('amountNum').parentElement.offsetWidth;
+    document.getElementById('amountNum').parentElement.classList.add('number-bump');
+  }
+
+  // Piggy bounce
+  if (animate && checked.size > 0) {
+    const pig = document.getElementById('piggyIcon');
+    pig.classList.remove('bounce');
+    void pig.offsetWidth;
+    pig.classList.add('bounce');
+    setTimeout(() => pig.classList.remove('bounce'), 500);
+  }
+
+  // Year total
+  const yearTotal = monthlyTotal * 12;
+  animateNumber(document.getElementById('yearTotal'), 0, yearTotal, 500);
+
+  // Category subtotals
+  DATA.forEach(cat => {
+    const sub = cat.items.filter(i => checked.has(i.id)).reduce((s, i) => s + getMonthly(i), 0);
+    const el = document.getElementById('sub-' + cat.id);
+    if (el) el.textContent = sub > 0 ? `＋¥${sub.toLocaleString()}` : '¥0';
+  });
+
+  // Progress
+  document.getElementById('checkedCount').textContent = checked.size;
+  const pct = TOTAL_ITEMS > 0 ? (checked.size / TOTAL_ITEMS * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // Result message
+  updateMessage(monthlyTotal, yearTotal);
+
+  // Confetti if milestone
+  if (animate && [5, 10, 15, TOTAL_ITEMS].includes(checked.size)) {
+    launchConfetti();
+  }
+}
+
+function animateNumber(el, from, to, duration) {
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(from + (to - from) * ease);
+    el.textContent = val.toLocaleString();
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function updateMessage(monthly, yearly) {
+  const el = document.getElementById('resultMessage');
+  if (monthly === 0) {
+    el.textContent = 'まだチェックがありません。上の項目をチェックしてみてください！';
+    return;
+  }
+  let msg = '';
+  if (yearly >= 300000) msg = `🎊 すごい！年間${yearly.toLocaleString()}円のへそくりができます！\n旅行・自分磨き・プチ贅沢に使えるお金が生まれます💕`;
+  else if (yearly >= 100000) msg = `✨ 年間${yearly.toLocaleString()}円のへそくりが可能！\n月${monthly.toLocaleString()}円、コツコツ積み立てれば10万円超えも夢じゃない🌸`;
+  else if (yearly >= 50000) msg = `🌟 年間${yearly.toLocaleString()}円のへそくりができそう！\n小さな節約の積み重ねが大きなお金に変わります💪`;
+  else msg = `💡 月${monthly.toLocaleString()}円からスタート！\nまだまだチェックできる項目があります。全部試してみましょう🐷`;
+
+  el.textContent = msg;
+}
+
+function launchConfetti() {
+  const colors = ['#E8835A', '#D4A043', '#4AA88A', '#F8C8B0', '#C45E38'];
+  for (let i = 0; i < 24; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (1.5 + Math.random()) + 's';
+      el.style.animationDelay = (Math.random() * 0.5) + 's';
+      el.style.width = (8 + Math.random() * 8) + 'px';
+      el.style.height = (8 + Math.random() * 8) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }, i * 30);
+  }
+}
+
+renderCategories();
+update(false);
+</script>
+</body>
+</html>
