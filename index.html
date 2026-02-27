@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>へそくり診断ツール｜家計まるごと節約チェック</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐷</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐷</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -428,32 +428,64 @@
     backdrop-filter: blur(10px);
   }
 
-  .cta-btn {
-    display: inline-block;
+  /* MYASP FORM */
+  .myasp-wrap {
+    background: rgba(255,255,255,0.18);
+    border-radius: 18px;
+    padding: 22px 20px 18px;
+    margin-bottom: 4px;
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255,255,255,0.4);
+  }
+  .myasp-lead {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .myasp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .myasp-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 50px;
+    border: none;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-dark);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    outline: none;
+  }
+  .myasp-input::placeholder { color: #CCC; }
+  .myasp-input:focus { box-shadow: 0 4px 16px rgba(255,255,255,0.5); }
+  .myasp-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 50px;
+    border: none;
     background: white;
     color: var(--coral);
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 700;
     font-size: 15px;
-    padding: 14px 32px;
-    border-radius: 50px;
-    border: none;
     cursor: pointer;
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     transition: all 0.25s ease;
     letter-spacing: 0.05em;
-    text-decoration: none;
   }
-
-  .cta-btn:hover {
-    transform: translateY(-2px) scale(1.03);
+  .myasp-btn:hover {
+    transform: translateY(-2px) scale(1.02);
     box-shadow: 0 10px 28px rgba(0,0,0,0.2);
   }
-
-  .cta-sub {
+  .myasp-note {
     font-size: 11px;
-    opacity: 0.75;
-    margin-top: 10px;
+    opacity: 0.7;
+    margin-top: 8px;
   }
 
   /* PROGRESS BAR */
@@ -589,10 +621,32 @@
       <div class="result-message" id="resultMessage">
         まだチェックがありません。<br>上の項目をチェックしてみてください！
       </div>
-      <a href="#" class="cta-btn">💌 節約の秘訣をもっと知りたい！</a>
-      <div class="cta-sub">詳しい節約テクニック＆へそくり管理術のコンテンツへ</div>
+      <!-- マイスピー登録フォーム -->
+      <div class="myasp-wrap">
+        <p class="myasp-lead">💌 無料メール講座に登録して<br>節約・へそくりの秘訣をもっと知ろう！</p>
+        <form action="https://saki7non.jp/p/r/T4qFs8N6" enctype="multipart/form-data" class="myasp-form" method="post" accept-charset="utf-8">
+          <input type="hidden" name="_method" value="POST"/>
+          <input name="data[User][mail]" id="Usermail" class="myasp-input required" type="email" placeholder="✉️ メールアドレスを入力してください"/>
+          <button type="submit" class="myasp-btn">🐷 無料で登録する →</button>
+          <input type="hidden" id="server_url" value="https://saki7non.jp/"/>
+          <input type="hidden" name="data[User][referer_form_url]" value="" class="UserRefererFormUrl"/>
+          <input type="hidden" name="data[User][referer_url]" value="" class="UserRefererUrl"/>
+          <script>
+            (function(){
+              var f=document.getElementsByClassName("UserRefererFormUrl");
+              for(var i=0;i<f.length;i++){f[i].value=location.href;}
+              if(document.referrer){
+                var u=document.getElementsByClassName("UserRefererUrl");
+                for(var i=0;i<u.length;i++){u[i].value=document.referrer;}
+              }
+            })();
+          </script>
+        </form>
+        <p class="myasp-note">🔒 登録無料・スパムメールは送りません・いつでも解除できます</p>
+      </div>
     </div>
   </div>
+  <script src="https://saki7non.jp/js/validation.js?d=20260227102056"></script>
 
 </div>
 
